@@ -23,9 +23,9 @@ Read `.claude/jira-flow.json` (missing: stop, `/jira-flow:init`). Take
 `gates`, `approvals.comments`.
 
 **Transitions.** Use the id from `jira.transitions` when it is set. When it
-is empty, `discover` the operation that lists an issue's transitions, run it
-with `executeRead` for the issue, and pick the one whose target status name
-matches (progress, review); say which id was used.
+is empty, `executeRead` `listJiraIssueTransitions` (`cloudId`,
+`issueIdOrKey`) and pick the transition whose target status matches
+(progress, review); say which id was used.
 
 ## Mode A: starting (`start [KEY-n]`)
 

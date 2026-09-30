@@ -7,7 +7,7 @@
       "name": "jira-flow",
       "source": "./plugins/jira-flow",
       "description": "Jira tracing, PR gates and steered story work for any project. /jira-flow:init configures it, /jira-flow:work <key> runs a story through approval checkpoints.",
-      "version": "0.1.0"
+      "version": "0.1.1"
     }
   ]
 }

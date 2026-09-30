@@ -109,7 +109,8 @@ Covered by the approval above; no second checkpoint.
      park them. Never stash silently. Files you did not touch mean another
      session works this tree: stop and ask which session finishes.
 2. `transitionJiraIssue` to In Progress if the issue is To Do (id from the
-   config, else looked up on the issue by name).
+   config, else `executeRead` `listJiraIssueTransitions` for the issue and
+   take the one leading to the in-progress status).
 3. Comment the approved plan on the issue from
    `${CLAUDE_PLUGIN_ROOT}/templates/plan-comment.md`.
 4. `state.sh merge <key> '.phase = "build" | .branch = "<branch>"'`.

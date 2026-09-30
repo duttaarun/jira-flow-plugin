@@ -57,22 +57,26 @@ site: take it. Several: `AskUserQuestion` with the site URLs as options
 ## Step 2: the project
 
 - Key from `$ARGUMENTS` (the first token matching `^[A-Z][A-Z0-9]+$`), else
-  `discover` the operation that lists Jira projects, run it with
-  `executeRead`, and `AskUserQuestion` with the projects (key and name) as
-  options.
+  `executeRead` the operation `listJiraProjects` (inputs `cloudId`, optional
+  `query`) and `AskUserQuestion` with the projects (key and name) as options.
 - Record `projectKey`, `projectName`, and whether the project is team-managed
   or company-managed if the listing says so.
 
+The operation names below were confirmed with `discover`; if one is
+rejected, `discover` again with the goal in words and use what it returns.
+
 ## Step 3: issue types and fields
 
-- `discover` the operation that returns the project's issue types (create
-  metadata, or the project's issue type list) and run it with `executeRead`.
-  Fill `jira.issueTypes` with the names that exist among Epic, Story, Task,
-  Bug, Subtask; leave a missing one as `""` and say it is missing (a project
+- `executeRead` `listJiraProjectIssueTypesMetadata` (inputs `cloudId`,
+  `projectIdOrKey`): each entry has an id, a name and a subtask flag. Fill
+  `jira.issueTypes` with the names that exist among Epic, Story, Task, Bug,
+  Subtask; leave a missing one as `""` and say it is missing (a project
   without a Bug type files bugs as Task + the bug label).
-- `discover` the operation that lists fields; find the field whose name
-  matches `story point` (case-insensitive) and the one matching `sprint`.
-  Record their ids under `jira.fields`; empty when absent.
+- `executeRead` `getJiraIssueTypeMetaWithFields` (inputs `cloudId`,
+  `projectIdOrKey`, `issueTypeId` of the story type, `requiredFieldsOnly:
+  false`, `maxResults` 200): among its fields, the one whose name matches
+  `story point` (case-insensitive) and the one matching `sprint`. Record
+  their `fieldId`s under `jira.fields`; empty when absent.
 
 ## Step 4: transitions
 
@@ -81,9 +85,12 @@ Progress, In Review and Done.
 
 1. `searchJiraIssuesUsingJql` with `project = <KEY> AND statusCategory != Done
    ORDER BY created DESC`, `maxResults` 1, fields `summary,status`.
-2. If an issue came back, `discover` the operation that lists the transitions
-   available on an issue and run it with `executeRead` for that key. Each
-   transition has an id, a name and a target status (with a status category).
+2. If an issue came back, `executeRead` `listJiraIssueTransitions` (inputs
+   `cloudId`, `issueIdOrKey`, `includeUnavailableTransitions: true`,
+   `sortByOpsBarAndStatus: true`). Each transition has an id, a name and the
+   status it leads to (with its category). `listJiraStatuses` (mode
+   `project`, `projectKey`) lists the project's statuses and categories when
+   a name is ambiguous.
 3. Map by the target status, in this order of preference:
    - `todo`: category `new`/`To Do`, or name matching `to do|backlog|open`
    - `inProgress`: category `indeterminate` with name matching `progress|doing|develop`
