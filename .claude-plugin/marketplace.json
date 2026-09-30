@@ -1,0 +1,13 @@
+{
+  "name": "jira-flow",
+  "owner": { "name": "Arun Dutta" },
+  "description": "Jira-traced work for Claude Code: every change is a story or a bug, every PR carries its key, nothing ships without a word from you.",
+  "plugins": [
+    {
+      "name": "jira-flow",
+      "source": "./plugins/jira-flow",
+      "description": "Jira tracing, PR gates and steered story work for any project. /jira-flow:init configures it, /jira-flow:work <key> runs a story through approval checkpoints.",
+      "version": "0.1.0"
+    }
+  ]
+}

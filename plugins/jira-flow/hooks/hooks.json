@@ -1,0 +1,54 @@
+{
+  "description": "jira-flow: the branch's issue at session start, the issue-key guard on commits and pushes, the ship gate on PRs, merges and closes, and the Jira link after every issue write.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-context.sh\"",
+            "timeout": 10,
+            "statusMessage": "Reading the branch's Jira key"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-key.sh\"",
+            "timeout": 10,
+            "statusMessage": "Checking for the issue key"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|mcp__github__create_pull_request|mcp__github__merge_pull_request|mcp__atlassian__transitionJiraIssue|mcp__atlassian__executeWrite|mcp__atlassian__executeDestructive",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ask-before-ship.sh\"",
+            "timeout": 10,
+            "statusMessage": "Checking the ship gate"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "mcp__atlassian__createJiraIssue|mcp__atlassian__editJiraIssue|mcp__atlassian__transitionJiraIssue|mcp__atlassian__addOrEditJiraIssueComment|mcp__atlassian__executeWrite|mcp__atlassian__executeDestructive",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/jira-link.sh\" 2>/dev/null || true",
+            "timeout": 10,
+            "statusMessage": "Linking the Jira issue"
+          }
+        ]
+      }
+    ]
+  }
+}

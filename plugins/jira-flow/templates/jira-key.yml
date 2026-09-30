@@ -1,0 +1,53 @@
+name: jira-key
+
+# Every PR is traced to a Jira issue: the title carries [{{KEY}}-n], the branch
+# carries {{KEY}}-n, and every commit subject starts with {{KEY}}-n. No secrets,
+# no network, so it runs on forks and drafts alike. Written by /jira-flow:init.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: PR title carries [{{KEY}}-n]
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if ! printf '%s' "$TITLE" | grep -qE '^\[{{KEY}}-[0-9]+\] '; then
+            echo "::error::PR title must start with [{{KEY}}-n] followed by a space. Got: $TITLE"
+            exit 1
+          fi
+
+      - name: Branch carries {{KEY}}-n
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          if ! printf '%s' "$BRANCH" | grep -qE '{{KEY}}-[0-9]+'; then
+            echo "::error::Head branch must carry {{KEY}}-n ({{KEY}}-n-short-slug). Got: $BRANCH"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Every commit subject starts with {{KEY}}-n
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          bad=0
+          while IFS= read -r line; do
+            if ! printf '%s' "$line" | grep -qE '^{{KEY}}-[0-9]+: '; then
+              echo "::error::Commit subject must start with '{{KEY}}-n: '. Got: $line"
+              bad=1
+            fi
+          done < <(git log --format=%s "$BASE".."$HEAD")
+          exit $bad

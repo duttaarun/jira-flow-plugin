@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "jira": {
+    "site": "https://your-site.atlassian.net",
+    "cloudId": "00000000-0000-0000-0000-000000000000",
+    "projectKey": "PROJ",
+    "projectName": "Your project",
+    "issueTypes": {
+      "epic": "Epic",
+      "story": "Story",
+      "task": "Task",
+      "bug": "Bug",
+      "subtask": "Subtask"
+    },
+    "transitions": {
+      "todo": "11",
+      "inProgress": "21",
+      "inReview": "31",
+      "done": "41"
+    },
+    "fields": {
+      "storyPoints": "customfield_10016",
+      "sprint": "customfield_10020"
+    },
+    "labels": {
+      "bug": "bug",
+      "platforms": [],
+      "themes": []
+    },
+    "taxonomy": ".claude/jira/taxonomy.md"
+  },
+  "git": {
+    "baseBranch": "main",
+    "protectedBranches": ["main"],
+    "requireKey": true,
+    "branch": "{key}-{slug}",
+    "commit": "{key}: {subject}",
+    "prTitle": "[{key}] {title}",
+    "prTemplate": ".github/pull_request_template.md",
+    "route": "auto"
+  },
+  "gates": [
+    {
+      "name": "app",
+      "cwd": ".",
+      "run": "npm run lint && npm run typecheck && npm test",
+      "paths": ["src/**", "package.json"]
+    }
+  ],
+  "work": {
+    "checkpoint": "step",
+    "commitEach": "never",
+    "stateDir": ""
+  },
+  "approvals": {
+    "createIssues": false,
+    "comments": false
+  },
+  "ship": {
+    "askBefore": ["pr", "merge", "close"],
+    "mergeMethod": "merge",
+    "deleteBranchOnMerge": true,
+    "waitForChecks": true
+  }
+}

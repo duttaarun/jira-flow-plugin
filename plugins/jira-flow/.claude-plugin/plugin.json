@@ -1,0 +1,20 @@
+{
+  "name": "jira-flow",
+  "displayName": "Jira Flow",
+  "version": "0.1.0",
+  "description": "Jira tracing, PR gates and steered story work for any project. /jira-flow:init writes the project's config; /jira-flow:work <key> takes a story or bug from plan to PR with an approval checkpoint at every phase; hooks guard the issue key on commits and stop PRs, merges and closes at a permission prompt.",
+  "author": {
+    "name": "Arun Dutta"
+  },
+  "homepage": "https://github.com/duttaarun/jira-flow-plugin",
+  "repository": "https://github.com/duttaarun/jira-flow-plugin",
+  "keywords": [
+    "jira",
+    "github",
+    "pull-request",
+    "workflow",
+    "hooks",
+    "approval-gates",
+    "atlassian"
+  ]
+}
