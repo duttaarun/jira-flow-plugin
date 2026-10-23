@@ -92,6 +92,11 @@ drop `pr`).
 | `approvals.createIssues`, `approvals.comments` | gate issue creation and comments too (off by default) |
 | `ship.askBefore`, `ship.mergeMethod`, `ship.deleteBranchOnMerge`, `ship.waitForChecks` | the door |
 
+The hooks look for the config in the repo each call runs in first, then in
+the folder the session started in, so a session opened in a parent folder
+still follows the config of the repo it works in. The full order is in
+[docs/config.md](docs/config.md).
+
 ## Migrating from a hand-rolled setup
 
 If a repo already carries its own copies of these hooks and skills (a
@@ -122,6 +127,17 @@ bash tests/run.sh
 
 Feeds every hook the JSON Claude Code sends, in a throwaway repo, and
 exercises the state store. No Jira or GitHub access is needed.
+
+## Changelog
+
+- **0.1.2**: the hooks find the config from the call's `cwd` (its repo's
+  toplevel) before `CLAUDE_PROJECT_DIR`. A session started in a parent
+  folder used to read no config there: the ship gate asked on every PR and
+  on transitions it could not name, whatever the repo's `ship.askBefore`
+  said, and the key guard stayed silent. The key guard now also reads the
+  branch where the call runs.
+- **0.1.1**: init and the lookups call the Atlassian operations by name.
+- **0.1.0**: first release.
 
 ## Layout
 

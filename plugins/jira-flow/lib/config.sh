@@ -6,9 +6,34 @@
 # /jira-flow:init); JIRA_FLOW_CONFIG points somewhere else when set. Every
 # reader treats a missing config as "this project is not traced": the guard
 # and the context hook stay silent, the ship gate falls back to its defaults.
+#
+# The project root is found from where the call runs, not where the session
+# started: a session opened in ~/projects that works in ~/projects/app must
+# read app's config. In order:
+#   1. the repo holding the call's folder (its git toplevel, or the folder
+#      itself outside git), when that root has a config. The call's folder is
+#      the hook input's `cwd` (see jf_use_input), else this process's $PWD.
+#   2. CLAUDE_PROJECT_DIR, the folder the session started in.
+#   3. the git toplevel of $PWD, else $PWD.
+# A call's root without a config falls through to 2, so a session started in
+# a configured repo keeps its config from a sub-folder or a scratch folder.
+
+# The call's folder, set by jf_use_input; empty means $PWD.
+JF_CWD=""
+
+# jf_use_input <hook JSON>: take the call's folder from the input's `cwd`.
+# Each hook calls this once, before its first jf_* lookup.
+jf_use_input() {
+  JF_CWD="$(printf '%s' "$1" | jq -r '.cwd // empty' 2>/dev/null)"
+}
 
 jf_project_root() {
-  local root="${CLAUDE_PROJECT_DIR:-}"
+  local cwd="${JF_CWD:-$PWD}" root
+  if [ -n "$cwd" ]; then
+    root="$(git -C "$cwd" rev-parse --show-toplevel 2>/dev/null)" || root="$cwd"
+    if [ -f "$root/.claude/jira-flow.json" ]; then printf '%s' "$root"; return; fi
+  fi
+  root="${CLAUDE_PROJECT_DIR:-}"
   if [ -z "$root" ]; then root="$(git rev-parse --show-toplevel 2>/dev/null)"; fi
   if [ -z "$root" ]; then root="$PWD"; fi
   printf '%s' "$root"
