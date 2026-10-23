@@ -5,6 +5,24 @@ project root; `JIRA_FLOW_CONFIG` points elsewhere when set. A project
 without the file is not traced: the guard and the session hook stay silent,
 the ship gate falls back to asking on every act.
 
+The hooks find the project root from where each call runs, not from where
+the session started, so a session opened in `~/projects` that works in
+`~/projects/app` reads `app`'s config. In order:
+
+1. `JIRA_FLOW_CONFIG`, when set.
+2. The repo holding the call's folder (the hook input's `cwd`; its git
+   toplevel, or the folder itself outside git), when it has the file.
+3. `CLAUDE_PROJECT_DIR`, the folder the session started in.
+4. The git toplevel of the hook process's working directory, else that
+   directory.
+
+A call's repo without a config falls through to 3, so a session started in a
+configured repo keeps its config while it works in a sub-folder or a scratch
+folder. `lib/state.sh` gets no hook input; the folder it runs in stands for
+the call's folder. The call's folder is where the command starts: in
+`cd ../other && gh pr create` the gate reads the config of the repo before
+the `cd`.
+
 ```json
 {
   "version": 1,

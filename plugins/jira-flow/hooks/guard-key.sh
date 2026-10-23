@@ -7,9 +7,10 @@
 # Silent in a project without a jira-flow config. With `git.requireKey`
 # false, only the protected-branch check remains.
 . "$(dirname "$0")/../lib/config.sh"
-[ -z "$(jf_config)" ] && exit 0
 
 input="$(cat)"
+jf_use_input "$input"
+[ -z "$(jf_config)" ] && exit 0
 cmd="$(printf '%s' "$input" | jq -r '.tool_input.command // empty' 2>/dev/null)"
 [ -z "$cmd" ] && exit 0
 
@@ -20,7 +21,9 @@ if ! printf '%s' "$cmd" | grep -qE "${b}git[[:space:]]+(commit|push)([[:space:]]
   exit 0
 fi
 
-cd "$(jf_project_root)" || exit 0
+# The branch is the one the call runs on: its own folder when the hook input
+# names it (the config may have come from the session's folder instead).
+cd "${JF_CWD:-$(jf_project_root)}" || exit 0
 pk="$(jf_project_key)"
 key_re="$(jf_key_regex)"
 branch="$(git branch --show-current 2>/dev/null)"

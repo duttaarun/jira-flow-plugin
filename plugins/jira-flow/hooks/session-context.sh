@@ -4,6 +4,7 @@
 # project without a jira-flow config.
 here="$(cd "$(dirname "$0")" && pwd)"
 . "$here/../lib/config.sh"
+jf_use_input "$(cat)"
 cfg="$(jf_config)"
 [ -z "$cfg" ] && exit 0
 root="$(jf_project_root)"

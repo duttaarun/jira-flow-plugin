@@ -10,6 +10,7 @@ set -u
 . "$(dirname "$0")/../lib/config.sh"
 
 input="$(cat)"
+jf_use_input "$input"
 tool="$(printf '%s' "$input" | jq -r '.tool_name // ""')"
 
 # The key: from the input (edit/transition/comment/execute*), else from the
